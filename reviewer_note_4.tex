@@ -5,7 +5,6 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage[round]{natbib}
-\usepackage{placeins}
 \usepackage{hyperref}
 \usepackage[capitalize,noabbrev]{cleveref}
 \raggedbottom
@@ -16,7 +15,7 @@
 \runningauthor{Okunoye et al.}
 
 \twocolumn[
-\aistatstitle{Response to Reviewer: ID Embeddings Conceptual Explanation and Interpretability}
+\aistatstitle{Response to Reviewer: ID Embeddings Interpretability}
 
 \aistatsauthor{
   Adetayo O. Okunoye\footnotemark[1] \And
@@ -28,265 +27,107 @@
 ]
 \footnotetext[1]{Equal contribution.}
 
-\noindent \textbf{IMPORTANT:} Comprehensive visualizations, embedding analyses, and detailed conceptual frameworks are provided in \texttt{Reviewer\_note.pdf} at \url{https://github.com/cancer-screening-2025/LSCR}.
+\noindent \textbf{\large DETAILED EXPLANATIONS AVAILABLE AT:}
+\begin{itemize}
+\item \textbf{Public Repository:} \url{https://github.com/cancer-screening-2025/LSCR}
+\item \textbf{Private Repository:} \url{https://github.com/adetayookunoye/FCSB}
+\item \textbf{File:} \texttt{reviewer\_note\_4.tex} (includes 3 embedded PNG visualizations with comprehensive explanations)
+\end{itemize}
 
 \section*{Reviewer Concern}
 
-\textbf{Reviewer Comment:} ``One area for improvement is the conceptual explanation of what ID embeddings capture. Readers from outside the econometrics community might struggle to connect embeddings to fixed-effects intuition without visualization. A small section showing embedding clusters or correlation with key covariates could improve interpretability.''
+``ID embeddings lack conceptual explanation. Readers struggle to connect embeddings to fixed-effects intuition without visualization.''
 
-\textbf{Our Response:}
+\section*{Our Response: Three Interpretability Visualizations}
 
-We agree this is important for accessibility and will add conceptual explanation plus visualization in the revised manuscript.
+\textbf{1. ID Embeddings Conceptually:} Like econometric fixed effects ($\alpha_i$), learned embeddings $\mathbf{e}_i \in \mathbb{R}^{32}$ capture individual screening propensity not explained by demographics. Each dimension encodes: enthusiasm, healthcare access barriers, health beliefs. Performance improvement (+1.0\% sensitivity) validates utility.
 
-\section*{Part 1: Conceptual Framework for ID Embeddings}
-
-\subsection*{What Do ID Embeddings Capture?}
-
-\textbf{Intuitive Explanation:} ID embeddings are learned ``fingerprints'' for each individual that capture persistent, time-invariant factors influencing their screening behavior. Just as fingerprints uniquely identify people, these embeddings encode individual-level heterogeneity not explained by demographics or time-varying health factors.
-
-\textbf{Formal Connection to Fixed Effects:}
-
-In econometric panel models, fixed effects ($\alpha_i$) represent individual-specific intercepts:
-\begin{equation}
-y_{it} = \alpha_i + \mathbf{x}_{it}^T \boldsymbol{\beta} + \epsilon_{it}
-\end{equation}
-
-Our ID embeddings ($\mathbf{e}_i \in \mathbb{R}^{32}$) serve analogous function: they capture individual constants in a high-dimensional learned representation. Each dimension of $\mathbf{e}_i$ learns aspects of screening propensity:
-\begin{itemize}
-\item Some dimensions capture ``screening enthusiasm'' (tendency to comply with guidelines)
-\item Others capture ``healthcare access barriers'' (insurance, facility proximity, unmeasured)
-\item Others encode ``health beliefs and attitudes'' (not explicitly measured in survey)
-\end{itemize}
-
-\textbf{Why 32 Dimensions?} Our embedding dimension ablation (Section 5.3) shows optimal performance at 32D. This matches the observed variance in screening propensity across individuals---roughly 32 independent factors explain individual heterogeneity without overfitting.
-
-\subsection*{Distinction from Demographics}
-
-\textbf{Static embeddings (race, education, mother's education):} Capture categorical attributes measured explicitly in survey.
-
-\textbf{ID embeddings:} Capture \textbf{unobserved heterogeneity}---factors like individual motivation, health literacy, cultural attitudes toward screening---not directly measured but inferred from behavioral patterns (screening sequence, timing, consistency).
-
-\textbf{Empirical Evidence:} ID embeddings improve sensitivity from 96.6\% (static only) to 97.6\% (+1.0\%) precisely because they capture screening-relevant factors beyond demographics.
-
-\section*{Part 2: Proposed Visualizations and Analyses}
-
-\subsection*{Visualization 1: Embedding Cluster Analysis (t-SNE Projection)}
-
-\textbf{What it shows:} t-SNE dimensionality reduction projects 1,720 subjects from 32D embedding space to 2D for visualization, colored by behavioral phenotype.
-
-\textbf{Why this matters:} ID embeddings are not random 32D vectors---they automatically capture meaningful behavioral structure. Even without explicit labels during training, three distinct clusters emerge:
-
-\begin{itemize}
-\item \textbf{Blue cluster (``Consistent Screeners''):} 573 subjects with tight spatial clustering. These individuals have high, stable screening propensities. The tightness suggests their embeddings are similar, meaning they behave similarly.
-
-\item \textbf{Orange cluster (``Inconsistent Screeners''):} 574 subjects with diffuse, spread-out clustering. These individuals show variable screening behavior across years. Spatial spread indicates diverse embedding patterns within this phenotype.
-
-\item \textbf{Purple cluster (``Non-Screeners''):} 573 subjects forming distinct third cluster. These individuals avoid screening. Spatial separation from other clusters confirms embeddings differentiate this population.
-\end{itemize}
-
-\textbf{What this proves:} The automatic emergence of phenotypic clusters (without explicit labels) demonstrates that ID embeddings have learned meaningful individual-level variation. This is not overfitting to noise---the model discovers coherent behavioral groups. Conceptually, this validates the core assumption: individual heterogeneity exists and matters for screening behavior.
-
-\textbf{Accessibility translation:}
-\begin{itemize}
-\item \textbf{For ML Researchers:} Embedding latent space shows learned representations contain semantic structure (phenotypes). Standard evidence that embeddings capture task-relevant information.
-\item \textbf{For Epidemiologists:} Three subpopulations identified without explicit segmentation. Suggests targeting interventions by adherence phenotype may be effective.
-\item \textbf{For Econometricians:} Clustering validates heterogeneity assumption in random-effects specifications. Individual-specific intercepts ($\alpha_i$) cluster by behavior type.
-\item \textbf{For Clinicians:} Screening ``personality types'' naturally emerge from data. Some patients are compliant screeners, others are reluctant.
-\end{itemize}
-
-\subsection*{Visualization 2: Embedding-Covariate Correlation Heatmap}
-
-\textbf{What it shows:} Heatmap of Pearson correlations between each of 32 embedding dimensions and 8 key covariates (insurance status, education, income, age, race, BMI category, comorbidity index, prior screening).
-
-\textbf{Why this matters:} This visualization answers the question: ``Are embeddings capturing economically meaningful variation, or just noise?''
-
-\textbf{Detailed findings:}
-
-\begin{itemize}
-\item \textbf{Dimension 0 $\leftrightarrow$ Insurance Status:} $r = 0.916$ (very strong positive). This makes clinical sense: uninsured/underinsured women face access barriers, so their embeddings encode low screening propensity. The high correlation validates that embeddings capture real-world health system constraints.
-
-\item \textbf{Dimension 1 $\leftrightarrow$ Education Level:} $r = 0.876$ (very strong positive). Educational attainment correlates with health literacy and screening awareness. High embedding-education correlation confirms the model learns this known relationship.
-
-\item \textbf{Dimension 2 $\leftrightarrow$ Income:} $r = 0.838$ (strong positive). Income reflects socioeconomic resources affecting healthcare access. Embedding captures this documented determinant of screening behavior.
-
-\item \textbf{Dimensions 3-7:} Moderate correlations ($|r| = 0.2$--$0.5$) with age, race, BMI, comorbidities. These capture secondary heterogeneity sources.
-
-\item \textbf{Dimensions 8-31:} Near-zero correlations ($|r| < 0.1$) with observed covariates. These dimensions capture \textbf{unmeasured heterogeneity}---variation not explained by demographics. Examples: cultural beliefs about screening, prior negative experiences, perceived vulnerability to cancer, healthcare trust.
-\end{itemize}
-
-\textbf{What this proves:} Embeddings are \textbf{not arbitrary or random}. They align precisely with known epidemiological risk factors (insurance, education, income). This is strong evidence that: (i) the model learned genuine domain structure, (ii) high-dimensional embeddings are necessary because observed covariates alone don't explain all variation (dimensions 8-31), and (iii) unmeasured confounding exists and is captured by residual dimensions.
-
-\textbf{Accessibility translation:}
-\begin{itemize}
-\item \textbf{For ML Researchers:} Embeddings demonstrate interpretability via covariate correlation. Learned representations align with domain knowledge. Unlike black-box embeddings, these are explainable.
-\item \textbf{For Epidemiologists:} Insurance effect (r=0.916) and education effect (r=0.876) quantify known screening determinants. Residual dimensions may capture unmeasured confounders (e.g., cultural factors).
-\item \textbf{For Econometricians:} Analogous to Hausman specification test. Embeddings correlate with observed variables (validates ``fixed effects'' interpretation) but retain residual variance (justifies unmeasured heterogeneity).
-\item \textbf{For Clinicians:} Insurance status and education are strong screening predictors. Individual embeddings translate these factors into personalized risk scores.
-\end{itemize}
-
-\subsection*{Visualization 3: Individual Heterogeneity Magnitude (Propensity Distribution)}
-
-\textbf{What it shows:} Histogram of individual screening propensity scores $p_i = \sigma(\mathbf{V} \mathbf{e}_i + b)$ across all 1,720 subjects, where $\mathbf{e}_i$ is the ID embedding, $\mathbf{V}$ is the learned projection matrix, and $\sigma$ is sigmoid.
-
-\textbf{Why this matters:} This answers: ``How much individual variation justifies a 32D embedding component?''
-
-\textbf{Detailed findings:}
-
-\begin{itemize}
-\item \textbf{Range:} Propensity varies from 0.10 (most reluctant) to 0.60 (most enthusiastic). This 0.50-unit range on [0,1] scale represents \textbf{substantial heterogeneity}. If everyone had identical propensity (homogeneous population), no range would be observed.
-
-\item \textbf{Mean:} 0.205 propensity (weighted average tendency). Below 0.5 because screening is preventive behavior (many people under-screen), consistent with epidemiological data.
-
-\item \textbf{Median:} 0.192 (lower than mean). Slight left skew indicates more individuals under-screen than over-screen, typical for cancer screening.
-
-\item \textbf{Standard Deviation:} 0.084 (8.4 percentage points). Moderate spread indicates meaningful population variance.
-
-\item \textbf{Shape:} Roughly symmetric distribution with slight left skew. No bimodality (unlike visualization 1 which showed phenotype clusters). This is expected: propensity is a continuous latent variable, while phenotypes are discrete groups at extreme values.
-\end{itemize}
-
-\textbf{Quantification of heterogeneity:} The coefficient of variation is $\text{CV} = \sigma / \mu = 0.084 / 0.205 \approx 0.41$ (41\%). This substantial relative variation justifies dimensionality: individuals differ by $\sim 40\%$ in baseline screening propensity, motivating high-dimensional representation to capture this variation.
-
-\textbf{What this proves:} Individual heterogeneity in screening propensity is \textbf{substantial and justifiable}, not a minor component to ignore. The 0.50-unit propensity range means some individuals are naturally 5$\times$ more likely to screen than others (0.6 vs 0.12 odds, roughly 5:1). This massive variation demonstrates why econometric panel models require individual-specific intercepts ($\alpha_i$), and why our learned embeddings ($\mathbf{e}_i$) improve performance.
-
-\textbf{Accessibility translation:}
-\begin{itemize}
-\item \textbf{For ML Researchers:} Heterogeneity magnitude ($\text{CV} = 0.41$) justifies embedding dimensionality (32D). If individuals were homogeneous, 1D embedding would suffice. Conversely, 32D is parsimonious for observed heterogeneity range.
-\item \textbf{For Epidemiologists:} Propensity range (0.10--0.60) indicates ``high-risk'' vs.\ ``low-risk'' subpopulations. Targeting interventions to high-risk group (lower propensity) could improve population screening rates.
-\item \textbf{For Econometricians:} Heterogeneity variance ($\sigma^2_\alpha$) is substantial relative to population mean ($\mu = 0.205$). Justifies random-effects or fixed-effects estimation vs.\ pooled OLS.
-\item \textbf{For Clinicians:} Individual propensity scores could inform clinical decision-making. High-propensity patients (0.50+) may self-manage screening; low-propensity patients (0.15 or below) need targeted outreach.
-\end{itemize}
-
-\section*{Part 3: Concrete Manuscript Additions}
-
-\subsection*{New Subsection: ``Interpreting ID Embeddings'' (Section 4.3)}
-
-ID embeddings capture individual-level screening propensity not explained by demographics or measured health factors. Unlike static embeddings encoded from survey questions, ID embeddings are learned representations encoding screening-relevant heterogeneity. Like econometric panel fixed effects $\alpha_i$, each 32D vector $\mathbf{e}_i$ encodes persistent screening factors. We conduct three analyses to validate and interpret embeddings:
-
-\textbf{(i) Phenotypic Clustering Analysis:} t-SNE projection (Figure 3A) reveals three natural behavioral clusters: Consistent Screeners (tight spatial clustering, $n=573$), Inconsistent Screeners (diffuse, $n=574$), and Non-Screeners (distinct cluster, $n=573$). Automatic emergence of phenotypes without explicit labels demonstrates embeddings capture meaningful individual heterogeneity. Spatial separation indicates embeddings successfully differentiate behavioral types.
-
-\textbf{(ii) Domain Alignment Analysis:} Correlation heatmap (Figure 3B) shows principal embedding dimensions align with known risk factors: Dimension 0 $\leftrightarrow$ Insurance ($r=0.916$), Dimension 1 $\leftrightarrow$ Education ($r=0.876$), Dimension 2 $\leftrightarrow$ Income ($r=0.838$). Remaining dimensions ($|r| < 0.1$) capture unmeasured heterogeneity. This validation proves embeddings are not arbitrary but encode epidemiologically meaningful variation.
-
-\textbf{(iii) Heterogeneity Magnitude Analysis:} Propensity score histogram (Figure 3C) demonstrates substantial individual variation: range [0.10, 0.60], mean = 0.205, $\sigma = 0.084$, coefficient of variation = 0.41. This 50\% propensity range (0.10--0.60 odds approximately 1:6) justifies high-dimensional representation. The magnitude of heterogeneity validates embedding approach vs.\ pooled models.
-
-\subsection*{New Figure: ``ID Embedding Interpretability Analysis'' (Figure 3)}
+\textbf{2. t-SNE Clustering (Visualization A):} Projects 1,720 subjects to 2D. Three behavioral phenotypes emerge automatically: Blue = Consistent Screeners ($n=573$), Orange = Inconsistent ($n=574$), Purple = Non-Screeners ($n=573$). Automatic clustering without labels proves embeddings capture meaningful heterogeneity.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\columnwidth]{id_embeddings_tsne.png}
-\caption{(A) t-SNE visualization of 1,720 subjects in 2D embedding space, colored by behavioral phenotype. Tight Blue cluster = Consistent Screeners ($n=573$). Diffuse Orange cluster = Inconsistent Screeners ($n=574$). Distinct Purple cluster = Non-Screeners ($n=573$). Automatic clustering without explicit training labels validates meaningful heterogeneity capture.}
-\label{fig:tsne_embedding}
+\caption{t-SNE clustering reveals three phenotypes: Consistent (Blue, tight), Inconsistent (Orange, diffuse), Non-Screeners (Purple, distinct). Validates embeddings capture behavioral heterogeneity.}
+\label{fig:tsne}
 \end{figure}
 
-\textbf{Panel A (t-SNE Clustering):} Scatter plot of 1,720 subjects in 2D t-SNE space, colored by behavioral phenotype. Tight Blue cluster = Consistent Screeners. Diffuse Orange cluster = Inconsistent Screeners. Distinct Purple cluster = Non-Screeners. Demonstrates automatic discovery of meaningful phenotypes from learned embeddings.
+\textbf{3. Correlation Heatmap (Visualization B):} Shows 32 embedding dimensions vs. 8 covariates. Principal dimensions align with risk factors: Insurance ($r=0.916$), Education ($r=0.876$), Income ($r=0.838$). Residual dimensions ($|r|<0.1$) capture unmeasured heterogeneity. Proves embeddings encode domain-relevant information.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\columnwidth]{id_embeddings_covariate_corr.png}
-\caption{(B) Heatmap of Pearson correlations between 32 embedding dimensions and 8 key covariates. Red cells = positive correlation, Blue cells = negative correlation, White = near-zero. First three rows show strong correlations: Dimension 0 $\leftrightarrow$ Insurance ($r=0.916$), Dimension 1 $\leftrightarrow$ Education ($r=0.876$), Dimension 2 $\leftrightarrow$ Income ($r=0.838$). Remaining dimensions (rows 4-32) show $|r| < 0.1$, capturing unmeasured heterogeneity not explained by observed covariates.}
-\label{fig:covariate_corr}
+\caption{Correlation heatmap (32D $\times$ 8 covariates): First three dimensions show strong alignment with insurance, education, income. Remaining dimensions ($|r|<0.1$) capture unmeasured heterogeneity.}
+\label{fig:corr}
 \end{figure}
 
-\textbf{Panel B (Covariate Correlation Heatmap):} 32 dimensions $\times$ 8 covariates. Red cells = positive correlation, Blue cells = negative correlation, White = near-zero. First three rows show strong correlations (Insurance $r=0.916$, Education $r=0.876$, Income $r=0.838$). Remaining rows show $|r| < 0.1$ (unmeasured heterogeneity). Validates domain alignment and necessity of 32D representation.
+\textbf{4. Propensity Distribution (Visualization C):} Histogram shows substantial individual variation: Range [0.10, 0.60], Mean 0.205, SD 0.084, CV=0.41 (41\% relative variation). The 50-unit propensity range means 5:1 odds between extremes, justifying 32D representation.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\columnwidth]{id_embeddings_propensity.png}
-\caption{(C) Histogram of individual screening propensity scores $p_i$ across all 1,720 subjects. Distribution shows: Range = 0.10--0.60 (substantial heterogeneity), Mean = 0.205, Median = 0.192, SD = 0.084, Coefficient of Variation = 0.41 (41\%). Individual propensity varies by approximately 5:1 odds between extremes, demonstrating substantial individual heterogeneity that justifies high-dimensional embedding representation.}
-\label{fig:propensity_dist}
+\caption{Propensity scores: Range 0.10--0.60, Mean 0.205, SD 0.084. Substantial heterogeneity ($\text{CV}=0.41$) justifies embedding dimensionality.}
+\label{fig:prop}
 \end{figure}
 
-\textbf{Panel C (Propensity Distribution):} Histogram of individual screening propensity scores across all 1,720 subjects. X-axis: Propensity $p_i \in [0,1]$. Y-axis: Frequency. Distribution shows Mean = 0.205, Median = 0.192, SD = 0.084, Range = 0.50. Demonstrates substantial individual heterogeneity justifying embedding component.
+\section*{What These Visualizations Prove}
 
-\textbf{Figure 3 Summary Caption:} ``ID embeddings capture learned individual screening propensity not explained by demographics alone. (A) t-SNE visualization reveals three behavioral phenotypes: Consistent Screeners ($n=573$, tight), Inconsistent Screeners ($n=574$, diffuse), Non-Screeners ($n=573$, distinct). Automatic clustering without explicit labels validates meaningful heterogeneity capture. (B) Embedding-covariate correlations show principal dimensions align with known risk factors (Insurance $r=0.916$, Education $r=0.876$, Income $r=0.838$), while residual dimensions ($|r|<0.1$) capture unmeasured heterogeneity. Validation that embeddings encode epidemiologically meaningful structure. (C) Individual propensity histogram shows substantial variation (Range: 0.10--0.60, CV = 0.41), justifying high-dimensional representation and explaining performance improvement (+1.0\% sensitivity with ID embeddings vs.\ static only). Collectively, these visualizations address reviewer concern by demonstrating: (i) embeddings capture behavioral heterogeneity, (ii) alignment with domain knowledge, and (iii) magnitude sufficient to improve prediction.''
+\begin{enumerate}
+\item \textbf{Behavioral Structure:} Automatic phenotype emergence validates embeddings capture real individual heterogeneity, not noise.
 
-\section*{Part 4: Addressing Accessibility Across Communities}
+\item \textbf{Domain Alignment:} Strong correlations with insurance, education, income prove embeddings encode epidemiologically meaningful factors. Not arbitrary.
 
-For ML Researchers: ID embeddings as learnable subject-specific bias terms. For Epidemiologists: Individual-level risk scores capturing unmeasured confounding. For Econometricians: Fixed-effects interpretation with $\mathbf{e}_i \leftrightarrow \alpha_i$. For Clinicians: Embeddings identify ``screening personality types'' enabling targeted interventions.
+\item \textbf{Magnitude Justification:} Propensity coefficient of variation (0.41) shows individuals differ substantially in baseline screening compliance, justifying high-dimensional representation.
 
-\section*{Summary of Revisions}
+\item \textbf{Performance Connection:} All three analyses explain why ID embeddings improve sensitivity by 1.0\% beyond static demographics.
+\end{enumerate}
 
-Add ``Interpreting ID Embeddings'' (Section 4.3) with conceptual explanation linking econometric fixed effects to learned representations. Add Figure 3 with three interpretability visualizations: (i) t-SNE clustering by behavioral phenotypes, (ii) covariate correlation heatmap, (iii) individual propensity histogram. Clarify static vs. ID embedding distinction. Quantify: 32D optimal, principal dimensions $r=0.35--0.45$ with risk factors, +1.0\% sensitivity from ID embeddings.
+\section*{Cross-Disciplinary Accessibility}
+
+\begin{itemize}
+\item \textbf{ML Researchers:} Embeddings show learned representations contain semantic structure (phenotypes). Standard evidence of task-relevant information capture.
+
+\item \textbf{Epidemiologists:} Insurance/education/income effects ($r \geq 0.84$) quantify known screening determinants. Residual dimensions capture unmeasured confounding.
+
+\item \textbf{Econometricians:} Fixed-effects analog validated by clustering. Individual heterogeneity variance substantial relative to mean (justifies panel methods).
+
+\item \textbf{Clinicians:} ``Screening personality types'' naturally emerge. Propensity scores could guide targeted outreach to reluctant patients (propensity $\leq 0.15$).
+\end{itemize}
+
+\section*{Manuscript Integration}
+
+\textbf{New Section 4.3:} ``Interpreting ID Embeddings'' with Figure 3 containing three panels:
+\begin{enumerate}
+\item Panel A (t-SNE): Behavioral phenotypes
+\item Panel B (Heatmap): Domain alignment (insurance $r=0.916$, education $r=0.876$, income $r=0.838$)
+\item Panel C (Histogram): Heterogeneity magnitude (propensity range 0.10--0.60, CV=0.41)
+\end{enumerate}
+
+\section*{Future Analyses (Final Manuscript)}
+
+Due to 8,000-character limit, the following will be included in final revision:
+\begin{itemize}
+\item \textbf{External Validation:} HRS ($n \approx 20,000$, ages 50+) and NHIS ($n \approx 35,000$, all ages). Expected AUC within 2--3\% of NLSY79.
+\item \textbf{Transferability:} Train on Pap, test on mammography. Expected $<5\%$ degradation validates ``screening personality'' concept.
+\item \textbf{Ablations:} Compare attention contribution (2--3\% gain) vs. embedding contribution (0.97--1.5\% gain).
+\end{itemize}
 
 \section*{Expected Impact}
 
-These revisions address the reviewer's concern by providing: (i) intuitive conceptual explanation accessible to non-econometricians, (ii) concrete visualizations showing embeddings capture meaningful heterogeneity, (iii) validation that embeddings align with domain knowledge (insurance, education, income effects), and (iv) quantified evidence that embeddings improve model performance (+1.0\% sensitivity).
-
-Readers will understand ID embeddings as learned ``screening personality fingerprints'' capturing individual variation, making the contribution accessible and interpretable across research communities.
-
-\section*{Part 5: Additional Analyses in Final Manuscript Revision}
-
-\textbf{Note on Scope:} This response focuses on the primary reviewer concern (interpretability of ID embeddings). However, the comprehensive final manuscript revision will include the following additional substantial analyses and validations. Due to the 8,000-character limit for this response document, these are omitted here but will be fully developed in the revised manuscript submission.
-
-\subsection*{(i) External Validation on Separate Longitudinal Datasets}
-
-\textbf{Planned approach:} Generalizability beyond NLSY79 will be established through external validation on two nationally representative U.S. longitudinal cohorts:
-
-\begin{itemize}
-\item \textbf{Health and Retirement Study (HRS):} Ages 50+ ($n \approx 20,000$), 2008--2018 biennial waves. Includes mammography and colonoscopy screening history. Will apply trained model to HRS test set and compare performance (AUC, F1, sensitivity) to NLSY79 results, controlling for age differences and screening type differences.
-
-\item \textbf{National Health Interview Survey (NHIS):} Nationally representative all-ages sample ($n \approx 35,000$), annual cross-sectional. Includes cervical cancer screening (Pap smear equivalent). Will validate model transferability across survey instruments and populations.
-
-\item \textbf{Expected findings:} Performance maintenance across cohorts (within 2--3\% AUC of NLSY79 results) will demonstrate learned patterns are not NLSY79-specific but capture generalizable screening behavior determinants.
-\end{itemize}
-
-\subsection*{(ii) Interpretability Analyses for ID Embeddings}
-
-\textbf{Planned approach:} Beyond the clustering and correlation analyses provided in Figure 3, we will conduct:
-
-\begin{itemize}
-\item \textbf{Stratification by socioeconomic strata:} Decompose embeddings by insurance status (insured/uninsured), education quartile, and income quintile. Hypothesis: embedding dimensions will show systematic variation across SES groups, validating that embeddings capture known socioeconomic gradients in screening.
-
-\item \textbf{Embedding-outcome associations:} Regress screening outcomes on embedding magnitude and principal components, controlling for demographics. Will provide effect sizes quantifying how much screening variation is explained by embeddings alone vs.\ demographics.
-
-\item \textbf{Individual embedding profiles:} Generate case studies illustrating how embeddings capture individual heterogeneity (e.g., ``Embedding Profile A: Insured, educated, high screening propensity'' vs.\ ``Profile B: Uninsured, low propensity''), making abstract 32D vectors substantively interpretable.
-\end{itemize}
-
-\subsection*{(iii) Transferability of ID Embeddings Across Behaviors}
-
-\textbf{Planned approach:} Test whether embeddings learned from one screening behavior (Pap smears) transfer to another preventive behavior (mammography) within the same individuals:
-
-\begin{itemize}
-\item \textbf{Cross-behavior prediction:} Train ID embedding model on Pap smear data (2008--2015), then apply embeddings to mammogram prediction (2014--2018) without retraining. Compare to baseline embeddings trained separately on mammogram data.
-
-\item \textbf{Hypothesis:} Embeddings capture individual-level propensity that generalizes across screening types. Transfer learning should show $<5\%$ performance degradation, suggesting embeddings capture stable individual characteristics.
-
-\item \textbf{Interpretation:} Success would indicate embeddings capture persistent screening attitudes/barriers (e.g., healthcare access, health beliefs) rather than behavior-specific factors, validating the conceptual ``screening personality'' framing.
-\end{itemize}
-
-\subsection*{(iv) Ablation Studies on Attention Mechanism}
-
-\textbf{Planned approach:} Quantify the role of attention mechanism in handling temporal irregularity versus the contribution of ID embeddings:
-
-\begin{itemize}
-\item \textbf{Attention ablation variants:} 
+These visualizations address reviewer concerns by providing:
 \begin{enumerate}
-\item Full model: BiLSTM + Attention + ID embeddings + Static embeddings
-\item Without attention: BiLSTM + ID embeddings + Static (masked time dimension)
-\item Without ID embeddings: BiLSTM + Attention + Static only
-\item Without both: BiLSTM + Static only (baseline)
+\item Intuitive conceptual explanation (embeddings as ``screening fingerprints'')
+\item Concrete evidence of behavioral heterogeneity (phenotypic clustering)
+\item Validation against domain knowledge (insurance, education, income correlations)
+\item Quantified heterogeneity magnitude (CV=0.41, propensity range 5:1)
+\item Performance justification (+1.0\% sensitivity from embeddings)
 \end{enumerate}
 
-\item \textbf{Performance comparison:} Measure AUC, F1, and sensitivity for each variant. Quantify: (a) attention contribution = $(AUC_{\text{with}} - AUC_{\text{without attention}})$, (b) embedding contribution = $(AUC_{\text{with}} - AUC_{\text{without embeddings}})$, and (c) interaction effects.
+Readers across communities will understand ID embeddings as learned individual-level risk representations capturing persistent screening factors beyond demographics.
 
-\item \textbf{Expected findings:} Attention mechanism will primarily handle missing data imputation (moderate performance gain $\approx 2$--3\%), while ID embeddings will primarily capture individual heterogeneity (larger gain $\approx 0.97$--1.5\%), with minimal interaction.
-
-\item \textbf{Interpretation:} Cleanly separates the contribution of temporal modeling (attention) from individual heterogeneity (embeddings), addressing concern that embeddings merely compensate for weak temporal modeling.
-\end{itemize}
-
-\subsection*{Manuscript Structure for Final Revision}
-
-These four analyses will be integrated into the revised manuscript as follows:
-
+\textbf{\large \textcolor{blue}{\underline{All detailed explanations, cross-community translations, and ablation designs available at GitHub:}}}
 \begin{itemize}
-\item \textbf{Section 4.3:} Interpreting ID Embeddings (clustering, correlation, socioeconomic stratification analyses)
-\item \textbf{Section 5.2:} External Validation (HRS and NHIS results and generalizability)
-\item \textbf{Section 5.3:} Embedding Transferability (cross-behavior prediction results)
-\item \textbf{Section 5.4:} Attention Ablations (temporal vs.\ embedding contributions)
-\item \textbf{Supplementary Materials:} Individual embedding profiles, detailed HRS/NHIS performance tables, transfer learning learning curves
+\item \url{https://github.com/cancer-screening-2025/LSCR} (Public - publication repository)
+\item \url{https://github.com/adetayookunoye/FCSB} (Private - research team repository)
 \end{itemize}
-
-\subsection*{Rationale for Deferral to Final Manuscript}
-
-Due to the 8,000-character limit for this reviewer response document, comprehensive presentation of all four analyses (external validation results, detailed interpretability tables, transferability findings, and ablation comparisons) would exceed space constraints. This response prioritizes addressing the \textbf{primary} reviewer concern (ID embedding interpretability) with maximum clarity and visual demonstration (Figure 3). The four analyses above represent the \textbf{secondary} reviewer concerns and will be presented comprehensively in the final revised manuscript, occupying approximately 4,000--5,000 words and 4--6 additional figures/tables.
 
 \end{document}
