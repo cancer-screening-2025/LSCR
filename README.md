@@ -22,6 +22,95 @@ This repository contains a systematic ablation study examining the impact of arc
 - **Screening Types**: Mammography and Pap Smear
 - **Features**: 119 total variables including demographic, health, and socioeconomic factors
 
+### Data Access & Preparation for Training
+
+**Source**: National Longitudinal Survey of Youth (NLSY) - public-use dataset
+
+**Getting the Data**:
+
+1. **Download NLSY Data**:
+   - Visit [NLSY Bureau of Labor Statistics](https://www.bls.gov/nls/)
+   - Select **NLSY79** cohort (the original 1979 cohort of young Americans)
+   - Download variables for: demographics, employment, health behaviors, healthcare access
+   - Time period: 2008-2018 biennial surveys
+
+2. **Key Variables to Extract**:
+   - **Demographic**: Age, race, education level, mother's education, family structure
+   - **Screening Outcomes**: Mammography screening (yes/no), Pap smear screening (yes/no)
+   - **Health**: Self-reported health status, BMI, insurance coverage, healthcare utilization
+   - **Socioeconomic**: Income, employment status, region, urban/rural status
+   - **Lifestyle**: Physical activity, smoking status, alcohol consumption
+
+3. **Preprocessing Steps** (included in `cancer_paper_dataset.ipynb`):
+   ```python
+   # Load raw NLSY data
+   df = pd.read_csv('data/raw/nlsy_raw.csv')
+   
+   # Filter to female participants only (age 40-60 in 2008)
+   df_female = df[df['sex'] == 'Female'].copy()
+   
+   # Select screening survey years (2008, 2010, 2012, 2014, 2016, 2018)
+   screening_years = [2008, 2010, 2012, 2014, 2016, 2018]
+   df_filtered = df_female[df_female['survey_year'].isin(screening_years)]
+   
+   # Handle missing values
+   # - Categorical: fill with mode or create 'Unknown' category
+   # - Continuous: impute using forward/backward fill or median
+   df_processed = df_filtered.fillna(method='bfill').fillna(method='ffill')
+   
+   # Encode categorical variables
+   categorical_vars = ['race', 'education', 'insurance_type', 'region']
+   df_encoded = pd.get_dummies(df_processed, columns=categorical_vars, drop_first=True)
+   
+   # Normalize continuous variables (0-1 scaling)
+   from sklearn.preprocessing import MinMaxScaler
+   scaler = MinMaxScaler()
+   continuous_vars = ['age', 'bmi', 'income']
+   df_encoded[continuous_vars] = scaler.fit_transform(df_encoded[continuous_vars])
+   
+   # Create long-format panel for sequential modeling
+   df_long = df_encoded.sort_values(['participant_id', 'survey_year'])
+   df_long['time_index'] = df_long.groupby('participant_id').cumcount()
+   ```
+
+4. **Data Files in Repository**:
+   - `data/raw/nlsy_data_females_only.csv` - Filtered to female participants
+   - `data/raw/nlsy_data_long_filtered_2008_2018.csv` - Reshaped to long format
+   - `data/raw/nlsy_data_long_with_time_features.csv` - Added temporal features
+   - `data/raw/final_dataset.csv` - Ready for model training (1,720 subjects × 6 time points)
+
+5. **Train/Test Split**:
+   ```python
+   # Random split: 80% train, 20% test (stratified by screening behavior)
+   from sklearn.model_selection import train_test_split
+   
+   train_ids, test_ids = train_test_split(
+       df_long['participant_id'].unique(),
+       test_size=0.2,
+       random_state=42,
+       stratify=df_long.groupby('participant_id')['mammogram_2018'].first()
+   )
+   
+   train_data = df_long[df_long['participant_id'].isin(train_ids)]
+   test_data = df_long[df_long['participant_id'].isin(test_ids)]
+   
+   # For t+4 forecasting: use 2008-2016 as input, predict 2018 outcomes
+   X_train = train_data[train_data['year'] <= 2016]
+   y_train = train_data[train_data['year'] == 2018][['participant_id', 'mammogram', 'pap_smear']]
+   
+   X_test = test_data[test_data['year'] <= 2016]
+   y_test = test_data[test_data['year'] == 2018][['participant_id', 'mammogram', 'pap_smear']]
+   ```
+
+6. **Quick Start with Included Data**:
+   - The repository includes preprocessed data files in `data/raw/`
+   - Run the notebook directly without manual preprocessing:
+   ```bash
+   jupyter notebook cancer_paper_dataset.ipynb
+   # Navigate to "Load Data" section (cell ~10)
+   # Data loads from final_dataset.csv (already preprocessed)
+   ```
+
 ### Key Trend Findings
 
 | Metric | 2008 | 2018 | Change |
@@ -202,20 +291,6 @@ pdflatex ablation_study_aistat.tex
 - Clinical metrics and interpretation
 - Computational efficiency analysis
 
-## Citation
-
-If you use this work, please cite:
-
-```bibtex
-@article{Okunoye2025FCSB,
-  title={Forecasting Cancer Screening Behavior from Longitudinal Data with 
-         Embedding-Augmented Deep Learning},
-  author={Okunoye, Adetayo O. and Agboola, Zainab A. and 
-          Subair, Lateef A. and Arpinar, Ismailcem B.},
-  journal={AISTATS 2026},
-  year={2025}
-}
-```
 
 ## Repository Statistics
 
@@ -226,22 +301,11 @@ If you use this work, please cite:
 - **Documentation**: 15+ markdown files
 - **Data Files**: 20+ CSV files at various processing stages
 
-## Authors
-
-- **Adetayo O. Okunoye** (University of Georgia)
-- **Zainab A. Agboola** (University of Georgia)
-- **Lateef A. Subair** (University of Mississippi)
-- **Ismailcem B. Arpinar** (University of Georgia)
-
 ## License
 
 MIT License - See LICENSE file for details
 
-## Contact
 
-For questions or issues, please contact:
-- Adetayo Okunoye: adetayo@uga.edu
-- GitHub Issues: https://github.com/adetayookunoye/FCSB/issues
 
 ## Acknowledgments
 
@@ -249,6 +313,5 @@ This work was supported by [funding sources and data providers]. We thank the re
 
 ---
 
-**Last Updated**: November 24, 2025  
-**Repository**: https://github.com/adetayookunoye/FCSB  
+
 **Status**: ✅ Initial commit complete
