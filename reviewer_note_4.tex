@@ -213,4 +213,80 @@ These revisions address the reviewer's concern by providing: (i) intuitive conce
 
 Readers will understand ID embeddings as learned ``screening personality fingerprints'' capturing individual variation, making the contribution accessible and interpretable across research communities.
 
+\section*{Part 5: Additional Analyses in Final Manuscript Revision}
+
+\textbf{Note on Scope:} This response focuses on the primary reviewer concern (interpretability of ID embeddings). However, the comprehensive final manuscript revision will include the following additional substantial analyses and validations. Due to the 8,000-character limit for this response document, these are omitted here but will be fully developed in the revised manuscript submission.
+
+\subsection*{(i) External Validation on Separate Longitudinal Datasets}
+
+\textbf{Planned approach:} Generalizability beyond NLSY79 will be established through external validation on two nationally representative U.S. longitudinal cohorts:
+
+\begin{itemize}
+\item \textbf{Health and Retirement Study (HRS):} Ages 50+ ($n \approx 20,000$), 2008--2018 biennial waves. Includes mammography and colonoscopy screening history. Will apply trained model to HRS test set and compare performance (AUC, F1, sensitivity) to NLSY79 results, controlling for age differences and screening type differences.
+
+\item \textbf{National Health Interview Survey (NHIS):} Nationally representative all-ages sample ($n \approx 35,000$), annual cross-sectional. Includes cervical cancer screening (Pap smear equivalent). Will validate model transferability across survey instruments and populations.
+
+\item \textbf{Expected findings:} Performance maintenance across cohorts (within 2--3\% AUC of NLSY79 results) will demonstrate learned patterns are not NLSY79-specific but capture generalizable screening behavior determinants.
+\end{itemize}
+
+\subsection*{(ii) Interpretability Analyses for ID Embeddings}
+
+\textbf{Planned approach:} Beyond the clustering and correlation analyses provided in Figure 3, we will conduct:
+
+\begin{itemize}
+\item \textbf{Stratification by socioeconomic strata:} Decompose embeddings by insurance status (insured/uninsured), education quartile, and income quintile. Hypothesis: embedding dimensions will show systematic variation across SES groups, validating that embeddings capture known socioeconomic gradients in screening.
+
+\item \textbf{Embedding-outcome associations:} Regress screening outcomes on embedding magnitude and principal components, controlling for demographics. Will provide effect sizes quantifying how much screening variation is explained by embeddings alone vs.\ demographics.
+
+\item \textbf{Individual embedding profiles:} Generate case studies illustrating how embeddings capture individual heterogeneity (e.g., ``Embedding Profile A: Insured, educated, high screening propensity'' vs.\ ``Profile B: Uninsured, low propensity''), making abstract 32D vectors substantively interpretable.
+\end{itemize}
+
+\subsection*{(iii) Transferability of ID Embeddings Across Behaviors}
+
+\textbf{Planned approach:} Test whether embeddings learned from one screening behavior (Pap smears) transfer to another preventive behavior (mammography) within the same individuals:
+
+\begin{itemize}
+\item \textbf{Cross-behavior prediction:} Train ID embedding model on Pap smear data (2008--2015), then apply embeddings to mammogram prediction (2014--2018) without retraining. Compare to baseline embeddings trained separately on mammogram data.
+
+\item \textbf{Hypothesis:} Embeddings capture individual-level propensity that generalizes across screening types. Transfer learning should show $<5\%$ performance degradation, suggesting embeddings capture stable individual characteristics.
+
+\item \textbf{Interpretation:} Success would indicate embeddings capture persistent screening attitudes/barriers (e.g., healthcare access, health beliefs) rather than behavior-specific factors, validating the conceptual ``screening personality'' framing.
+\end{itemize}
+
+\subsection*{(iv) Ablation Studies on Attention Mechanism}
+
+\textbf{Planned approach:} Quantify the role of attention mechanism in handling temporal irregularity versus the contribution of ID embeddings:
+
+\begin{itemize}
+\item \textbf{Attention ablation variants:} 
+\begin{enumerate}
+\item Full model: BiLSTM + Attention + ID embeddings + Static embeddings
+\item Without attention: BiLSTM + ID embeddings + Static (masked time dimension)
+\item Without ID embeddings: BiLSTM + Attention + Static only
+\item Without both: BiLSTM + Static only (baseline)
+\end{enumerate}
+
+\item \textbf{Performance comparison:} Measure AUC, F1, and sensitivity for each variant. Quantify: (a) attention contribution = $(AUC_{\text{with}} - AUC_{\text{without attention}})$, (b) embedding contribution = $(AUC_{\text{with}} - AUC_{\text{without embeddings}})$, and (c) interaction effects.
+
+\item \textbf{Expected findings:} Attention mechanism will primarily handle missing data imputation (moderate performance gain $\approx 2$--3\%), while ID embeddings will primarily capture individual heterogeneity (larger gain $\approx 0.97$--1.5\%), with minimal interaction.
+
+\item \textbf{Interpretation:} Cleanly separates the contribution of temporal modeling (attention) from individual heterogeneity (embeddings), addressing concern that embeddings merely compensate for weak temporal modeling.
+\end{itemize}
+
+\subsection*{Manuscript Structure for Final Revision}
+
+These four analyses will be integrated into the revised manuscript as follows:
+
+\begin{itemize}
+\item \textbf{Section 4.3:} Interpreting ID Embeddings (clustering, correlation, socioeconomic stratification analyses)
+\item \textbf{Section 5.2:} External Validation (HRS and NHIS results and generalizability)
+\item \textbf{Section 5.3:} Embedding Transferability (cross-behavior prediction results)
+\item \textbf{Section 5.4:} Attention Ablations (temporal vs.\ embedding contributions)
+\item \textbf{Supplementary Materials:} Individual embedding profiles, detailed HRS/NHIS performance tables, transfer learning learning curves
+\end{itemize}
+
+\subsection*{Rationale for Deferral to Final Manuscript}
+
+Due to the 8,000-character limit for this reviewer response document, comprehensive presentation of all four analyses (external validation results, detailed interpretability tables, transferability findings, and ablation comparisons) would exceed space constraints. This response prioritizes addressing the \textbf{primary} reviewer concern (ID embedding interpretability) with maximum clarity and visual demonstration (Figure 3). The four analyses above represent the \textbf{secondary} reviewer concerns and will be presented comprehensively in the final revised manuscript, occupying approximately 4,000--5,000 words and 4--6 additional figures/tables.
+
 \end{document}
