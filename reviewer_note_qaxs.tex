@@ -28,6 +28,10 @@
 ]
 \footnotetext[1]{Equal contribution.}
 
+\noindent \textbf{IMPORTANT:} A comprehensive detailed response to all reviewer concerns with complete evidence, tables, and methodological justification is provided in \texttt{Reviewer\_note\_QAxS.pdf} in the LSCR GitHub repository: \url{https://github.com/cancer-screening-2025/LSCR}. This document provides exhaustive documentation of our experimental results, bootstrap validation procedures, ablation studies, and clinical interpretations. The following is a condensed summary; please refer to the linked PDF for complete details.
+
+\vspace{0.3cm}
+
 \noindent We thank the reviewer for constructive feedback. We address all five concerns with evidence from our experimental results.
 
 \section*{Concern 1: Single Dataset, Generalizability}
@@ -40,22 +44,7 @@
 
 \section*{Concern 2: Baseline Methods Dated, Unclear SOTA Advance}
 
-\textbf{Our Response:} Our embedding-augmented framework achieves strong absolute performance and substantial improvements over non-temporal baseline:
-
-\begin{table}[h]
-\centering
-\caption{Best Model Performance vs. XGBoost Baseline (Mammogram, t+4)}
-\label{tab:sota}
-\scriptsize
-\begin{tabular}{lccc}
-\toprule
-\textbf{Model} & \textbf{AUC} & \textbf{F1} & \textbf{Improvement} \\
-\midrule
-XGBoost & 0.829 & 0.680 & Baseline \\
-BiLSTM + ID + Static & 0.875 & 0.847 & +5.6\% AUC, +24.6\% F1 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\textbf{Our Response:} Our embedding-augmented framework achieves strong absolute performance and substantial improvements over non-temporal baseline: BiLSTM + ID + Static achieves AUC=0.875, F1=0.847 (mammogram, t+4) versus XGBoost baseline AUC=0.829, F1=0.680, representing +5.6\% AUC and +24.6\% F1 improvement.
 
 \textbf{Why RNNs Over Transformers:} With only $T_i \le 6$ time steps per subject ($N=1,720$ sequences), Transformers would overfit severely (require $>5,000$ sequences; attention heads get $\approx 286$ samples each). RNNs with explicit regularization (embeddings) are more appropriate for this data-scarce setting.
 
@@ -67,26 +56,7 @@ BiLSTM + ID + Static & 0.875 & 0.847 & +5.6\% AUC, +24.6\% F1 \\
 
 \textbf{Our Response:} While RNNs and embeddings are known, our contribution is the novel \textbf{integration of econometric fixed-effects thinking with deep learning}.
 
-\textbf{Key Innovation:} ID embeddings ($\mathbf{e}_i$) approximate fixed effects ($\alpha_i$ in panel models), a practice fundamental to econometrics but rarely integrated into neural networks. This cross-disciplinary integration addresses unobserved individual heterogeneity in health data.
-
-\begin{table}[h]
-\centering
-\caption{ID Embeddings' Quantified Impact}
-\label{tab:id_impact}
-\scriptsize
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Model} & \textbf{F1} & \textbf{AUC} & \textbf{Sensitivity} & \textbf{Gain} \\
-\midrule
-BiLSTM + Static & 0.9385 & 0.9297 & 0.9659 & -- \\
-BiLSTM + ID + Static & 0.9365 & 0.9269 & 0.9756 & -0.20\% F1 / +0.97\% Sens \\
-LSTM + Static & 0.9359 & 0.9168 & 0.9716 & -- \\
-LSTM + ID + Static & 0.9359 & 0.9168 & 0.9716 & No change \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Clinical Justification:} ID embeddings create an intentional sensitivity-specificity tradeoff (−0.20\% F1, +0.97\% sensitivity). For cancer screening, high sensitivity (catching 97.56\% of screeners) is clinically prioritized over balanced F1. The fact that LSTM does not benefit from ID embeddings (unlike BiLSTM) reveals architecture-dependency, distinguishing our approach.
+\textbf{Key Innovation:} ID embeddings ($\mathbf{e}_i$) approximate fixed effects ($\alpha_i$ in panel models), a practice fundamental to econometrics but rarely integrated into neural networks. This cross-disciplinary integration addresses unobserved individual heterogeneity in health data. Our empirical results demonstrate: BiLSTM + Static achieves F1=0.9385, AUC=0.9297, Sensitivity=0.9659, while BiLSTM + ID + Static achieves F1=0.9365, AUC=0.9269, Sensitivity=0.9756, yielding a sensitivity-specificity tradeoff (−0.20\% F1, +0.97\% Sensitivity) clinically justified for cancer screening where high sensitivity is prioritized.
 
 \textbf{Systematic Embedding Dimension Analysis:} We provide principled ablation showing optimal tradeoff at 32D ID + 8D static embeddings (0.9970 AUC), with diminishing returns beyond. This methodological rigor is non-standard in healthcare ML.
 
